@@ -28,43 +28,28 @@ class LocationForegroundService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_STOP) {
-            stopTracking()
-            return START_NOT_STICKY
-        }
+    val notification = createTrackingNotification()
+    startForeground(NOTIFICATION_ID, notification)
+    startLocationUpdates()
+    return START_STICKY
+}
 
-        startForeground(NOTIFICATION_ID, buildNotification())
-        startLocationUpdates()
-        return START_STICKY
-    }
+private fun createTrackingNotification(): Notification {
+    val channelId = "tracking_channel"
+    val channel = NotificationChannel(
+        channelId, "Tracking Active",
+        NotificationManager.IMPORTANCE_LOW
+    )
+    (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
+        .createNotificationChannel(channel)
 
-    private fun buildNotification(): android.app.Notification {
-        val mgr = getSystemService(NotificationManager::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID, "Location sharing", NotificationManager.IMPORTANCE_LOW
-            )
-            mgr.createNotificationChannel(channel)
-        }
-
-        val stopIntent = Intent(this, LocationForegroundService::class.java).apply {
-            action = ACTION_STOP
-        }
-        val stopPending = PendingIntent.getService(
-            this, 0, stopIntent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
-        return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-            .setContentTitle("Location sharing is on")
-            .setContentText("Your manager can see your location. Tap Stop to turn it off.")
-            .setOngoing(true)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .addAction(0, "Stop sharing", stopPending)
-            .build()
-    }
-
+    return NotificationCompat.Builder(this, channelId)
+        .setContentTitle("Tracking System Active")
+        .setContentText("Location tracking is currently on")
+        .setSmallIcon(R.drawable.ic_tracking)
+        .setOngoing(true)   // স্ক্রিপ করা যাবে না, সবসময় দেখা যাবে
+        .build()
+}
     private fun startLocationUpdates() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return stopSelf()
         fusedClient = LocationServices.getFusedLocationProviderClient(this)
