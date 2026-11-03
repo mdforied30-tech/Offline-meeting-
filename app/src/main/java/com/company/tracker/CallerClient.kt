@@ -79,7 +79,8 @@ object CallerClient {
         pc.addStream(stream)
 
         pc.createOffer(object : SdpObserverAdapter() {
-            override fun onCreateSuccess(desc: SessionDescription) {
+                        override fun onCreateSuccess(desc: SessionDescription?) {
+                if (desc == null) return
                 pc.setLocalDescription(SdpObserverAdapter(), desc)
 
                 callRef.set(
