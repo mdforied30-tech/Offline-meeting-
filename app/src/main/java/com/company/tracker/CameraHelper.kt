@@ -1,13 +1,18 @@
 package com.company.tracker
 
+import android.content.Context
+
+/**
+ * Thin bridge between EmployeeActivity's toggle and the real WebRTC work
+ * in CallerClient. No UI of its own — on() mirrors the toggle going on,
+ * off() mirrors it going off.
+ */
 object CameraHelper {
-    fun startForegroundCapture(uid: String) {
-        // TODO: integrate CameraX preview + mic capture + WebRTC peer
-        // connection here, started only from EmployeeActivity.onResume().
+    fun startForegroundCapture(context: Context, ownerUid: String) {
+        CallerClient.start(context, ownerUid)
     }
 
     fun stopCapture() {
-        // TODO: tear down the peer connection / camera session here,
-        // called from EmployeeActivity.onPause() and on toggle-off.
+        CallerClient.stop()
     }
 }
