@@ -18,6 +18,7 @@ class EmployeeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEmployeeBinding
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
+    private var ownerUid: String? = null
 
     private val permissionRequest = registerForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions()
@@ -36,6 +37,12 @@ class EmployeeActivity : AppCompatActivity() {
 
         binding.statusText.text = "Location + Microphone + Camera Access"
 
+        // Look up the single owner account once at startup, the same way
+        // employee.html does on the web — CallerClient needs this to know
+        // who to signal the camera/mic stream to.
+        db.collection("users").whereEqualTo("role", "owner").limit(1).get()
+            .addOnSuccessListener { docs -> ownerUid = docs.documents.firstOrNull()?.id }
+
         binding.shareToggle.setOnCheckedChangeListener { _, isOn ->
             if (isOn) requestPermissionsAndStart() else stopSharing()
         }
@@ -43,8 +50,9 @@ class EmployeeActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        // Camera/mic are only ever live while this screen is visible.
         if (binding.shareToggle.isChecked) {
-            auth.currentUser?.uid?.let { CameraHelper.startForegroundCapture(it) }
+            ownerUid?.let { CameraHelper.startForegroundCapture(this, it) }
         }
     }
 
@@ -70,8 +78,15 @@ class EmployeeActivity : AppCompatActivity() {
 
     private fun startSharing() {
         val uid = auth.currentUser?.uid ?: return
+        val owner = ownerUid
+        if (owner == null) {
+            binding.statusText.text = "Owner account খুঁজে পাওয়া যাচ্ছে না, একটু পর আবার চেষ্টা করুন"
+            binding.shareToggle.isChecked = false
+            return
+        }
+
         startForegroundService(Intent(this, LocationForegroundService::class.java))
-        CameraHelper.startForegroundCapture(uid)
+        CameraHelper.startForegroundCapture(this, owner)
         binding.statusText.text = "Location + Microphone + Camera Access  •  On"
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
