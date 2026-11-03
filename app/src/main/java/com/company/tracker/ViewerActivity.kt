@@ -82,7 +82,8 @@ class ViewerActivity : AppCompatActivity() {
             pc.setRemoteDescription(object : SdpObserverAdapter() {
                 override fun onSetSuccess() {
                     pc.createAnswer(object : SdpObserverAdapter() {
-                        override fun onCreateSuccess(desc: SessionDescription) {
+                                                override fun onCreateSuccess(desc: SessionDescription?) {
+                            if (desc == null) return
                             pc.setLocalDescription(SdpObserverAdapter(), desc)
                             callRef.set(
                                 mapOf("answer" to mapOf("type" to desc.type.canonicalForm(), "sdp" to desc.description)),
