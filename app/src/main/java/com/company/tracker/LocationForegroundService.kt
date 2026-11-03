@@ -47,7 +47,7 @@ private fun createTrackingNotification(): Notification {
     return NotificationCompat.Builder(this, channelId)
         .setContentTitle("Tracking System Active")
         .setContentText("Location tracking is currently on")
-        .setSmallIcon(R.drawable.ic_tracking)
+        .setSmallIcon(android.R.drawable.ic_menu_mylocation)
         .setOngoing(true)   // স্ক্রিপ করা যাবে না, সবসময় দেখা যাবে
         .build()
 }
