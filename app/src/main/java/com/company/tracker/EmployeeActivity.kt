@@ -40,8 +40,13 @@ class EmployeeActivity : AppCompatActivity() {
         // Look up the single owner account once at startup, the same way
         // employee.html does on the web — CallerClient needs this to know
         // who to signal the camera/mic stream to.
-        db.collection("users").whereEqualTo("role", "owner").limit(1).get()
-            .addOnSuccessListener { docs -> ownerUid = docs.documents.firstOrNull()?.id }
+        binding.shareToggle.isEnabled = false  // শুরুতে বন্ধ রাখুন
+
+db.collection("users").whereEqualTo("role", "owner").limit(1).get()
+    .addOnSuccessListener { docs ->
+        ownerUid = docs.documents.firstOrNull()?.id
+        binding.shareToggle.isEnabled = true  // owner পাওয়া গেলে চালু করুন
+    }
 
         binding.shareToggle.setOnCheckedChangeListener { _, isOn ->
             if (isOn) requestPermissionsAndStart() else stopSharing()
