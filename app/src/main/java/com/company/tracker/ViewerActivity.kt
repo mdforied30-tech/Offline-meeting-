@@ -29,12 +29,10 @@ class ViewerActivity : AppCompatActivity() {
 
         employeeUid = intent.getStringExtra("employeeUid") ?: run { finish(); return }
 
-        renderer = findViewById(R.id.remoteView)
-        renderer.init(WebRtcFactory.eglBase.eglBaseContext, null)
-        renderer.setMirror(false)
-        renderer.init(WebRtcFactory.eglBase.eglBaseContext, null)
-renderer.setMirror(false)
-renderer.setZOrderMediaOverlay(true)
+                    renderer = findViewById(R.id.remoteView)
+            renderer.init(WebRtcFactory.eglBase.eglBaseContext, null)
+            renderer.setMirror(false)
+            renderer.setZOrderMediaOverlay(true)
 
         startViewing()
     }
