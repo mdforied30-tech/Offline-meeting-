@@ -32,6 +32,9 @@ class ViewerActivity : AppCompatActivity() {
         renderer = findViewById(R.id.remoteView)
         renderer.init(WebRtcFactory.eglBase.eglBaseContext, null)
         renderer.setMirror(false)
+        renderer.init(WebRtcFactory.eglBase.eglBaseContext, null)
+renderer.setMirror(false)
+renderer.setZOrderMediaOverlay(true)
 
         startViewing()
     }
